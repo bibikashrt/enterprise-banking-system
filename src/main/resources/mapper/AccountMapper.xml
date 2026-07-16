@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.mapper.AccountMapper">
+
+    <resultMap id="accountResultMap"
+               type="com.bank.entity.Account">
+
+        <id property="accountId" column="account_id"/>
+
+        <result property="accountNumber" column="account_number"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="branchId" column="branch_id"/>
+        <result property="accountType" column="account_type"/>
+        <result property="currency" column="currency"/>
+        <result property="availableBalance" column="available_balance"/>
+        <result property="ledgerBalance" column="ledger_balance"/>
+        <result property="accountStatus" column="account_status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+    </resultMap>
+
+    <!-- Insert -->
+
+    <insert id="insert"
+            parameterType="com.bank.entity.Account"
+            useGeneratedKeys="true"
+            keyProperty="accountId">
+
+        INSERT INTO account
+        (
+        account_number,
+        customer_id,
+        branch_id,
+        account_type,
+        currency,
+        available_balance,
+        ledger_balance,
+        account_status
+        )
+        VALUES
+        (
+        #{accountNumber},
+        #{customerId},
+        #{branchId},
+        #{accountType},
+        #{currency},
+        #{availableBalance},
+        #{ledgerBalance},
+        #{accountStatus}
+        )
+
+    </insert>
+
+    <!-- Find By ID -->
+
+    <select id="findById"
+            resultMap="accountResultMap">
+
+        SELECT *
+        FROM account
+        WHERE account_id = #{accountId}
+
+    </select>
+
+    <!-- Find By Account Number -->
+
+    <select id="findByAccountNumber"
+            resultMap="accountResultMap">
+
+        SELECT *
+        FROM account
+        WHERE account_number = #{accountNumber}
+
+    </select>
+
+    <!-- Find By Customer -->
+
+    <select id="findByCustomerId"
+            resultMap="accountResultMap">
+
+        SELECT *
+        FROM account
+        WHERE customer_id = #{customerId}
+        AND account_status != 'CLOSED'
+
+    </select>
+
+    <!-- Find By Branch -->
+
+    <select id="findByBranchId"
+            resultMap="accountResultMap">
+
+        SELECT *
+        FROM account
+        WHERE branch_id = #{branchId}
+        AND account_status != 'CLOSED'
+
+    </select>
+
+    <!-- Find All -->
+
+    <select id="findAll"
+            resultMap="accountResultMap">
+
+        SELECT *
+        FROM account
+        WHERE account_status != 'CLOSED'
+        ORDER BY account_id DESC
+
+    </select>
+
+    <!-- Search -->
+
+    <select id="search"
+            resultMap="accountResultMap">
+
+        SELECT *
+        FROM account
+        WHERE account_status != 'CLOSED'
+        AND (
+        LOWER(account_number)
+        LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+        )
+        ORDER BY account_id DESC
+
+    </select>
+
+    <!-- Update -->
+
+    <update id="update"
+            parameterType="com.bank.entity.Account">
+
+        UPDATE account
+        SET
+        account_status = #{accountStatus},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE account_id = #{accountId}
+
+    </update>
+
+    <update id="updateBalance"
+            parameterType="com.bank.entity.Account">
+
+        UPDATE account
+        SET
+
+        available_balance = #{availableBalance},
+        ledger_balance = #{ledgerBalance},
+        updated_at = CURRENT_TIMESTAMP
+
+        WHERE account_id = #{accountId}
+
+    </update>
+
+    <!-- Close -->
+
+    <update id="closeAccount">
+
+        UPDATE account
+        SET
+        account_status = 'CLOSED',
+        updated_at = CURRENT_TIMESTAMP
+        WHERE account_id = #{accountId}
+
+    </update>
+
+</mapper>
