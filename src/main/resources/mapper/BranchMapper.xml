@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.mapper.BranchMapper">
+
+    <!-- ========================= -->
+    <!-- Result Map                -->
+    <!-- ========================= -->
+
+    <resultMap id="branchResultMap"
+               type="com.bank.entity.Branch">
+
+        <id property="branchId" column="branch_id"/>
+
+        <result property="branchCode" column="branch_code"/>
+        <result property="branchName" column="branch_name"/>
+        <result property="branchAddress" column="branch_address"/>
+        <result property="branchPhone" column="branch_phone"/>
+        <result property="branchEmail" column="branch_email"/>
+        <result property="branchStatus" column="branch_status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+    </resultMap>
+
+    <!-- ========================= -->
+    <!-- Insert Branch             -->
+    <!-- ========================= -->
+
+    <insert id="insert"
+            parameterType="com.bank.entity.Branch"
+            useGeneratedKeys="true"
+            keyProperty="branchId">
+
+        INSERT INTO branch
+        (
+        branch_code,
+        branch_name,
+        branch_address,
+        branch_phone,
+        branch_email,
+        branch_status
+        )
+        VALUES
+        (
+        #{branchCode},
+        #{branchName},
+        #{branchAddress},
+        #{branchPhone},
+        #{branchEmail},
+        #{branchStatus}
+        )
+
+    </insert>
+
+    <!-- ========================= -->
+    <!-- Find By ID                -->
+    <!-- ========================= -->
+
+    <select id="findById"
+            resultMap="branchResultMap">
+
+        SELECT *
+        FROM branch
+        WHERE branch_id = #{branchId}
+
+    </select>
+
+    <!-- ========================= -->
+    <!-- Find By Branch Code       -->
+    <!-- ========================= -->
+
+    <select id="findByBranchCode"
+            resultMap="branchResultMap">
+
+        SELECT *
+        FROM branch
+        WHERE branch_code = #{branchCode}
+
+    </select>
+
+    <!-- ========================= -->
+    <!-- Find By Branch Name       -->
+    <!-- ========================= -->
+
+    <select id="findByBranchName"
+            resultMap="branchResultMap">
+
+        SELECT *
+        FROM branch
+        WHERE LOWER(branch_name) = LOWER(#{branchName})
+
+    </select>
+
+    <!-- ========================= -->
+    <!-- Find By Branch Email      -->
+    <!-- ========================= -->
+
+    <select id="findByBranchEmail"
+            resultMap="branchResultMap">
+
+        SELECT *
+        FROM branch
+        WHERE LOWER(branch_email) = LOWER(#{branchEmail})
+
+    </select>
+
+    <!-- ========================= -->
+    <!-- Find All                  -->
+    <!-- ========================= -->
+
+    <select id="findAll"
+            resultMap="branchResultMap">
+
+        SELECT *
+        FROM branch
+        WHERE branch_status != 'CLOSED'
+        ORDER BY branch_id DESC
+
+    </select>
+
+    <!-- ========================= -->
+    <!-- Search                    -->
+    <!-- ========================= -->
+
+    <select id="search"
+            resultMap="branchResultMap">
+
+        SELECT *
+        FROM branch
+        WHERE branch_status != 'CLOSED'
+        AND (
+        LOWER(branch_name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+        OR LOWER(branch_code) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+        )
+        ORDER BY branch_id DESC
+
+    </select>
+
+    <!-- ========================= -->
+    <!-- Update                    -->
+    <!-- ========================= -->
+
+    <update id="update"
+            parameterType="com.bank.entity.Branch">
+
+        UPDATE branch
+        SET
+        branch_name = #{branchName},
+        branch_address = #{branchAddress},
+        branch_phone = #{branchPhone},
+        branch_email = #{branchEmail},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE branch_id = #{branchId}
+
+    </update>
+
+    <!-- ========================= -->
+    <!-- Close Branch              -->
+    <!-- ========================= -->
+
+    <update id="closeBranch">
+
+        UPDATE branch
+        SET
+        branch_status = 'CLOSED',
+        updated_at = CURRENT_TIMESTAMP
+        WHERE branch_id = #{branchId}
+
+    </update>
+
+</mapper>
