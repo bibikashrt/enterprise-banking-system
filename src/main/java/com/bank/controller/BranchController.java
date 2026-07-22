@@ -4,6 +4,7 @@ import com.bank.dto.request.CreateBranchRequest;
 import com.bank.dto.request.UpdateBranchRequest;
 import com.bank.dto.response.BranchResponse;
 import com.bank.model.ApiResponse;
+import com.bank.security.Secured;
 import com.bank.service.BranchService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/branches")
+@Secured
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class BranchController {

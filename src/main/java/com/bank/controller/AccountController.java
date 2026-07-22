@@ -4,6 +4,7 @@ import com.bank.dto.request.CreateAccountRequest;
 import com.bank.dto.request.UpdateAccountRequest;
 import com.bank.dto.response.AccountResponse;
 import com.bank.model.ApiResponse;
+import com.bank.security.Secured;
 import com.bank.service.AccountService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -14,12 +15,15 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/accounts")
+@Secured
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountController {
 
     @Inject
     private AccountService accountService;
+
+
 
     @POST
     public Response createAccount(@Valid CreateAccountRequest request) {

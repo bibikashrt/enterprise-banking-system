@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.mapper.BeneficiaryMapper">
+
+    <resultMap id="BeneficiaryResultMap"
+               type="com.bank.entity.Beneficiary">
+
+        <id property="beneficiaryId"
+            column="beneficiary_id"/>
+
+        <result property="customerId"
+                column="customer_id"/>
+
+        <result property="beneficiaryAccountId"
+                column="beneficiary_account_id"/>
+
+        <result property="beneficiaryName"
+                column="beneficiary_name"/>
+
+        <result property="nickname"
+                column="nickname"/>
+
+        <result property="beneficiaryStatus"
+                column="beneficiary_status"
+                javaType="com.bank.enums.BeneficiaryStatus"/>
+
+        <result property="createdAt"
+                column="created_at"/>
+
+        <result property="updatedAt"
+                column="updated_at"/>
+
+    </resultMap>
+
+
+    <insert id="insert"
+            parameterType="com.bank.entity.Beneficiary"
+            useGeneratedKeys="true"
+            keyProperty="beneficiaryId">
+
+        INSERT INTO beneficiary
+        (
+        customer_id,
+        beneficiary_account_id,
+        beneficiary_name,
+        nickname,
+        beneficiary_status
+        )
+        VALUES
+        (
+        #{customerId},
+        #{beneficiaryAccountId},
+        #{beneficiaryName},
+        #{nickname},
+        #{beneficiaryStatus}
+        )
+
+    </insert>
+
+
+    <select id="findById"
+            parameterType="long"
+            resultMap="BeneficiaryResultMap">
+
+        SELECT
+        beneficiary_id,
+        customer_id,
+        beneficiary_account_id,
+        beneficiary_name,
+        nickname,
+        beneficiary_status,
+        created_at,
+        updated_at
+        FROM beneficiary
+        WHERE beneficiary_id = #{beneficiaryId}
+
+    </select>
+
+
+    <select id="findByCustomerId"
+            parameterType="long"
+            resultMap="BeneficiaryResultMap">
+
+        SELECT
+        beneficiary_id,
+        customer_id,
+        beneficiary_account_id,
+        beneficiary_name,
+        nickname,
+        beneficiary_status,
+        created_at,
+        updated_at
+        FROM beneficiary
+        WHERE customer_id = #{customerId}
+        ORDER BY created_at DESC
+
+    </select>
+
+
+    <select id="findByCustomerAndAccount"
+            resultMap="BeneficiaryResultMap">
+
+        SELECT
+        beneficiary_id,
+        customer_id,
+        beneficiary_account_id,
+        beneficiary_name,
+        nickname,
+        beneficiary_status,
+        created_at,
+        updated_at
+        FROM beneficiary
+        WHERE customer_id = #{customerId}
+        AND beneficiary_account_id = #{beneficiaryAccountId}
+
+    </select>
+
+
+    <select id="findAll"
+            resultMap="BeneficiaryResultMap">
+
+        SELECT
+        beneficiary_id,
+        customer_id,
+        beneficiary_account_id,
+        beneficiary_name,
+        nickname,
+        beneficiary_status,
+        created_at,
+        updated_at
+        FROM beneficiary
+        ORDER BY created_at DESC
+
+    </select>
+
+
+    <update id="update"
+            parameterType="com.bank.entity.Beneficiary">
+
+        UPDATE beneficiary
+        SET
+        nickname = #{nickname},
+        beneficiary_status = #{beneficiaryStatus},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE beneficiary_id = #{beneficiaryId}
+
+    </update>
+
+
+    <update id="deactivate"
+            parameterType="long">
+
+        UPDATE beneficiary
+        SET
+        beneficiary_status = 'INACTIVE',
+        updated_at = CURRENT_TIMESTAMP
+        WHERE beneficiary_id = #{beneficiaryId}
+
+    </update>
+
+</mapper>

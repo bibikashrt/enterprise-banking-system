@@ -4,16 +4,20 @@ import com.bank.dto.request.CreateCustomerRequest;
 import com.bank.dto.request.UpdateCustomerRequest;
 import com.bank.dto.response.CustomerResponse;
 import com.bank.model.ApiResponse;
+import com.bank.security.Secured;
 import com.bank.service.CustomerService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+
 import java.util.List;
 
 @Path("/customers")
+@Secured
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class CustomerController {
@@ -25,6 +29,7 @@ public class CustomerController {
      * Create Customer
      */
     @POST
+    @RolesAllowed({"MANAGER","TELLER"})
     public Response createCustomer(
             @Valid CreateCustomerRequest request) {
 
@@ -65,6 +70,7 @@ public class CustomerController {
 
         return Response.ok(response).build();
     }
+
 
     /**
      * Get All Customers
@@ -169,5 +175,7 @@ public class CustomerController {
 
         return Response.ok(response).build();
     }
+
+
 
 }
