@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.mapper.EmployeeMapper">
+
+    <resultMap id="EmployeeResultMap"
+               type="com.bank.entity.Employee">
+
+        <id property="employeeId"
+            column="employee_id"/>
+
+        <result property="employeeNumber"
+                column="employee_number"/>
+
+        <result property="branchId"
+                column="branch_id"/>
+
+        <result property="firstName"
+                column="first_name"/>
+
+        <result property="lastName"
+                column="last_name"/>
+
+        <result property="email"
+                column="email"/>
+
+        <result property="phoneNumber"
+                column="phone_number"/>
+
+        <result property="employeeRole"
+                column="employee_role"
+                javaType="com.bank.enums.EmployeeRole"/>
+
+        <result property="employeeStatus"
+                column="employee_status"
+                javaType="com.bank.enums.EmployeeStatus"/>
+
+        <result property="createdAt"
+                column="created_at"/>
+
+        <result property="updatedAt"
+                column="updated_at"/>
+
+    </resultMap>
+
+
+    <insert id="insert"
+            parameterType="com.bank.entity.Employee"
+            useGeneratedKeys="true"
+            keyProperty="employeeId">
+
+        INSERT INTO employee
+        (
+        employee_number,
+        branch_id,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        employee_role,
+        employee_status
+        )
+        VALUES
+        (
+        #{employeeNumber},
+        #{branchId},
+        #{firstName},
+        #{lastName},
+        #{email},
+        #{phoneNumber},
+        #{employeeRole},
+        #{employeeStatus}
+        )
+
+    </insert>
+
+
+    <select id="findById"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+        employee_id,
+        employee_number,
+        branch_id,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        employee_role,
+        employee_status,
+        created_at,
+        updated_at
+        FROM employee
+        WHERE employee_id = #{employeeId}
+
+    </select>
+
+
+    <select id="findByEmployeeNumber"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+        employee_id,
+        employee_number,
+        branch_id,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        employee_role,
+        employee_status,
+        created_at,
+        updated_at
+        FROM employee
+        WHERE employee_number = #{employeeNumber}
+
+    </select>
+
+
+    <select id="findByEmail"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+        employee_id,
+        employee_number,
+        branch_id,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        employee_role,
+        employee_status,
+        created_at,
+        updated_at
+        FROM employee
+        WHERE LOWER(email) = LOWER(#{email})
+
+    </select>
+
+
+    <select id="findByBranchId"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+        employee_id,
+        employee_number,
+        branch_id,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        employee_role,
+        employee_status,
+        created_at,
+        updated_at
+        FROM employee
+        WHERE branch_id = #{branchId}
+        ORDER BY employee_id DESC
+
+    </select>
+
+
+    <select id="findAll"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+        employee_id,
+        employee_number,
+        branch_id,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        employee_role,
+        employee_status,
+        created_at,
+        updated_at
+        FROM employee
+        ORDER BY employee_id DESC
+
+    </select>
+
+
+    <select id="search"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+        employee_id,
+        employee_number,
+        branch_id,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        employee_role,
+        employee_status,
+        created_at,
+        updated_at
+        FROM employee
+        WHERE LOWER(employee_number)
+        LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+
+        OR LOWER(first_name)
+        LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+
+        OR LOWER(last_name)
+        LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+
+        OR LOWER(email)
+        LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+
+        ORDER BY employee_id DESC
+
+    </select>
+
+
+    <update id="update"
+            parameterType="com.bank.entity.Employee">
+
+        UPDATE employee
+        SET
+        first_name = #{firstName},
+        last_name = #{lastName},
+        email = #{email},
+        phone_number = #{phoneNumber},
+        employee_role = #{employeeRole},
+        employee_status = #{employeeStatus},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE employee_id = #{employeeId}
+
+    </update>
+
+
+    <update id="deactivate">
+
+        UPDATE employee
+        SET
+        employee_status = 'INACTIVE',
+        updated_at = CURRENT_TIMESTAMP
+        WHERE employee_id = #{employeeId}
+
+    </update>
+
+</mapper>
