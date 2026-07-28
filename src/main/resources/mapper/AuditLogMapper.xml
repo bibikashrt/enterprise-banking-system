@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.mapper.AuditLogMapper">
+
+    <resultMap id="auditLogResultMap"
+               type="com.bank.entity.AuditLog">
+
+        <id property="auditLogId" column="audit_log_id"/>
+
+        <result property="action" column="action"/>
+        <result property="entityName" column="entity_name"/>
+        <result property="entityId" column="entity_id"/>
+        <result property="description" column="description"/>
+        <result property="createdAt" column="created_at"/>
+
+    </resultMap>
+
+    <insert id="insert"
+            parameterType="com.bank.entity.AuditLog"
+            useGeneratedKeys="true"
+            keyProperty="auditLogId">
+
+        INSERT INTO audit_log
+        (
+        action,
+        entity_name,
+        entity_id,
+        description
+        )
+        VALUES
+        (
+        #{action},
+        #{entityName},
+        #{entityId},
+        #{description}
+        )
+
+    </insert>
+
+</mapper>
