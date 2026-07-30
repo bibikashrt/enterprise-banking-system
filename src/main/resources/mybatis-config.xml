@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- ========================================================= -->
+    <!-- Global Settings                                            -->
+    <!-- ========================================================= -->
+
+    <settings>
+
+        <!-- customer_id -> customerId -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+
+        <!-- Enable first level cache -->
+        <setting name="cacheEnabled" value="true"/>
+
+        <!-- Lazy loading -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+
+        <!-- Auto populate generated keys -->
+        <setting name="useGeneratedKeys" value="true"/>
+
+        <!-- Handle SQL NULL values -->
+        <setting name="jdbcTypeForNull" value="NULL"/>
+
+        <!-- Use SLF4J logging -->
+        <setting name="logImpl" value="SLF4J"/>
+
+    </settings>
+
+    <!-- ========================================================= -->
+    <!-- Type Aliases                                               -->
+    <!-- ========================================================= -->
+
+    <typeAliases>
+
+        <package name="com.bank.entity"/>
+
+    </typeAliases>
+
+    <!-- ========================================================= -->
+    <!-- Mapper Interfaces                                          -->
+    <!-- ========================================================= -->
+
+    <mappers>
+
+        <mapper resource="mapper/CustomerMapper.xml"/>
+        <mapper resource="mapper/AuditLogMapper.xml"/>
+        <mapper resource="mapper/BranchMapper.xml"/>
+        <mapper resource="mapper/AccountMapper.xml"/>
+        <mapper resource="mapper/TransactionMapper.xml"/>
+        <mapper resource="mapper/BeneficiaryMapper.xml"/>
+        <mapper resource="mapper/EmployeeMapper.xml"/>
+        <mapper resource="mapper/LoanMapper.xml"/>
+        <mapper resource="mapper/AuthMapper.xml"/>
+    </mappers>
+
+</configuration>
