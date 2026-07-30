@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.mapper.LoanMapper">
+
+    <resultMap id="LoanResultMap"
+               type="com.bank.entity.Loan">
+
+        <id property="loanId"
+            column="loan_id"/>
+
+        <result property="loanNumber"
+                column="loan_number"/>
+
+        <result property="customerId"
+                column="customer_id"/>
+
+        <result property="accountId"
+                column="account_id"/>
+
+        <result property="loanType"
+                column="loan_type"
+                javaType="com.bank.enums.LoanType"/>
+
+        <result property="principalAmount"
+                column="principal_amount"/>
+
+        <result property="interestRate"
+                column="interest_rate"/>
+
+        <result property="tenureMonths"
+                column="tenure_months"/>
+
+        <result property="outstandingBalance"
+                column="outstanding_balance"/>
+
+        <result property="loanStatus"
+                column="loan_status"
+                javaType="com.bank.enums.LoanStatus"/>
+
+        <result property="approvedAt"
+                column="approved_at"/>
+
+        <result property="disbursedAt"
+                column="disbursed_at"/>
+
+        <result property="closedAt"
+                column="closed_at"/>
+
+        <result property="createdAt"
+                column="created_at"/>
+
+        <result property="updatedAt"
+                column="updated_at"/>
+
+    </resultMap>
+
+
+    <insert id="insert"
+            parameterType="com.bank.entity.Loan"
+            useGeneratedKeys="true"
+            keyProperty="loanId">
+
+        INSERT INTO loan
+        (
+        loan_number,
+        customer_id,
+        account_id,
+        loan_type,
+        principal_amount,
+        interest_rate,
+        tenure_months,
+        outstanding_balance,
+        loan_status
+        )
+        VALUES
+        (
+        #{loanNumber},
+        #{customerId},
+        #{accountId},
+        #{loanType},
+        #{principalAmount},
+        #{interestRate},
+        #{tenureMonths},
+        #{outstandingBalance},
+        #{loanStatus}
+        )
+
+    </insert>
+
+
+    <select id="findById"
+            resultMap="LoanResultMap">
+
+        SELECT
+        loan_id,
+        loan_number,
+        customer_id,
+        account_id,
+        loan_type,
+        principal_amount,
+        interest_rate,
+        tenure_months,
+        outstanding_balance,
+        loan_status,
+        approved_at,
+        disbursed_at,
+        closed_at,
+        created_at,
+        updated_at
+        FROM loan
+        WHERE loan_id = #{loanId}
+
+    </select>
+
+
+    <select id="findByLoanNumber"
+            resultMap="LoanResultMap">
+
+        SELECT
+        loan_id,
+        loan_number,
+        customer_id,
+        account_id,
+        loan_type,
+        principal_amount,
+        interest_rate,
+        tenure_months,
+        outstanding_balance,
+        loan_status,
+        approved_at,
+        disbursed_at,
+        closed_at,
+        created_at,
+        updated_at
+        FROM loan
+        WHERE loan_number = #{loanNumber}
+
+    </select>
+
+
+    <select id="findByCustomerId"
+            resultMap="LoanResultMap">
+
+        SELECT
+        loan_id,
+        loan_number,
+        customer_id,
+        account_id,
+        loan_type,
+        principal_amount,
+        interest_rate,
+        tenure_months,
+        outstanding_balance,
+        loan_status,
+        approved_at,
+        disbursed_at,
+        closed_at,
+        created_at,
+        updated_at
+        FROM loan
+        WHERE customer_id = #{customerId}
+        ORDER BY loan_id DESC
+
+    </select>
+
+
+    <select id="findByAccountId"
+            resultMap="LoanResultMap">
+
+        SELECT
+        loan_id,
+        loan_number,
+        customer_id,
+        account_id,
+        loan_type,
+        principal_amount,
+        interest_rate,
+        tenure_months,
+        outstanding_balance,
+        loan_status,
+        approved_at,
+        disbursed_at,
+        closed_at,
+        created_at,
+        updated_at
+        FROM loan
+        WHERE account_id = #{accountId}
+        ORDER BY loan_id DESC
+
+    </select>
+
+
+    <select id="findAll"
+            resultMap="LoanResultMap">
+
+        SELECT
+        loan_id,
+        loan_number,
+        customer_id,
+        account_id,
+        loan_type,
+        principal_amount,
+        interest_rate,
+        tenure_months,
+        outstanding_balance,
+        loan_status,
+        approved_at,
+        disbursed_at,
+        closed_at,
+        created_at,
+        updated_at
+        FROM loan
+        ORDER BY loan_id DESC
+
+    </select>
+
+
+    <select id="search"
+            resultMap="LoanResultMap">
+
+        SELECT
+        loan_id,
+        loan_number,
+        customer_id,
+        account_id,
+        loan_type,
+        principal_amount,
+        interest_rate,
+        tenure_months,
+        outstanding_balance,
+        loan_status,
+        approved_at,
+        disbursed_at,
+        closed_at,
+        created_at,
+        updated_at
+        FROM loan
+        WHERE LOWER(loan_number)
+        LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+        ORDER BY loan_id DESC
+
+    </select>
+
+
+    <update id="update"
+            parameterType="com.bank.entity.Loan">
+
+        UPDATE loan
+        SET
+        loan_type = #{loanType},
+        principal_amount = #{principalAmount},
+        interest_rate = #{interestRate},
+        tenure_months = #{tenureMonths},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE loan_id = #{loanId}
+
+    </update>
+
+
+    <update id="approve">
+
+        UPDATE loan
+        SET
+        loan_status = 'APPROVED',
+        approved_at = CURRENT_TIMESTAMP,
+        updated_at = CURRENT_TIMESTAMP
+        WHERE loan_id = #{loanId}
+        AND loan_status = 'PENDING'
+
+    </update>
+
+
+    <update id="reject">
+
+        UPDATE loan
+        SET
+        loan_status = 'REJECTED',
+        updated_at = CURRENT_TIMESTAMP
+        WHERE loan_id = #{loanId}
+        AND loan_status = 'PENDING'
+
+    </update>
+
+
+    <update id="activate"
+            parameterType="com.bank.entity.Loan">
+
+        UPDATE loan
+        SET
+        outstanding_balance = #{outstandingBalance},
+        loan_status = 'ACTIVE',
+        disbursed_at = CURRENT_TIMESTAMP,
+        updated_at = CURRENT_TIMESTAMP
+        WHERE loan_id = #{loanId}
+        AND loan_status = 'APPROVED'
+
+    </update>
+
+    <update id="repay"
+            parameterType="com.bank.entity.Loan">
+
+        UPDATE loan
+        SET
+        outstanding_balance = #{outstandingBalance},
+        loan_status = #{loanStatus},
+        closed_at = #{closedAt},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE loan_id = #{loanId}
+        AND loan_status = 'ACTIVE'
+
+    </update>
+
+</mapper>
