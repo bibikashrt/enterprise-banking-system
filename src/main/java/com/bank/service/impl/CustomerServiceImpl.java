@@ -11,6 +11,9 @@ import com.bank.enums.CustomerStatus;
 import com.bank.exception.CustomerNotFoundException;
 import com.bank.exception.DuplicateCustomerException;
 import com.bank.service.CustomerService;
+import com.bank.usecase.customer.CloseCustomerUseCase;
+import com.bank.usecase.customer.CreateCustomerUseCase;
+import com.bank.usecase.customer.UpdateCustomerUseCase;
 import com.bank.util.CustomerNumberGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,64 +29,23 @@ import java.util.ArrayList;
 public class CustomerServiceImpl implements CustomerService {
 
     @Inject
+    private CreateCustomerUseCase createCustomerUseCase;
+
+    @Inject
+    private UpdateCustomerUseCase updateCustomerUseCase;
+
+    @Inject
+    private CloseCustomerUseCase closeCustomerUseCase;
+
+    @Inject
     private CustomerDAO customerDAO;
 
     @Inject
     private AuditLogDAO auditLogDAO;
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
-        log.info("Creating customer with citizenship number: {}",
-                request.getCitizenshipNumber());
-
-        // Check duplicate citizenship number
-        if (customerDAO.findByCitizenshipNumber(request.getCitizenshipNumber()) != null) {
-            throw new DuplicateCustomerException("Citizenship number already exists.");
-        }
-
-        // Check duplicate PAN
-        if (request.getPanNumber() != null &&
-                customerDAO.findByPanNumber(request.getPanNumber()) != null) {
-
-            throw new DuplicateCustomerException("PAN number already exists.");
-        }
-
-        // Check duplicate email
-        if (customerDAO.findByEmail(request.getEmail()) != null) {
-            throw new DuplicateCustomerException("Email already exists.");
-        }
-
-        Customer customer = Customer.builder()
-                .customerNumber(CustomerNumberGenerator.generate())
-                .firstName(request.getFirstName())
-                .middleName(request.getMiddleName())
-                .lastName(request.getLastName())
-                .dateOfBirth(request.getDateOfBirth())
-                .gender(request.getGender())
-                .citizenshipNumber(request.getCitizenshipNumber())
-                .panNumber(request.getPanNumber())
-                .email(request.getEmail())
-                .mobileNumber(request.getMobileNumber())
-                .address(request.getAddress())
-                .customerStatus(CustomerStatus.ACTIVE)
-                .build();
-
-        customerDAO.save(customer);
-
-        AuditLog auditLog = AuditLog.builder()
-                .action("CREATE")
-                .entityName("CUSTOMER")
-                .entityId(customer.getCustomerId())
-                .description("Customer created successfully.")
-                .build();
-
-        auditLogDAO.save(auditLog);
-
-        log.info("Customer created successfully. Customer Number: {}",
-                customer.getCustomerNumber());
-
-        return mapToResponse(customer);
+        return createCustomerUseCase.execute(request);
     }
 
     @Override
@@ -149,45 +111,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
-    public CustomerResponse updateCustomer(Long customerId,
-                                           UpdateCustomerRequest request) {
-
-        log.info("Updating customer with ID: {}", customerId);
-
-        Customer customer = getCustomerOrThrow(customerId);
-
-        validateDuplicateCustomer(customer, request);
-
-        customer.setFirstName(request.getFirstName());
-        customer.setMiddleName(request.getMiddleName());
-        customer.setLastName(request.getLastName());
-        customer.setDateOfBirth(request.getDateOfBirth());
-        customer.setGender(request.getGender());
-        customer.setCitizenshipNumber(request.getCitizenshipNumber());
-        customer.setPanNumber(request.getPanNumber());
-        customer.setEmail(request.getEmail());
-        customer.setMobileNumber(request.getMobileNumber());
-        customer.setAddress(request.getAddress());
-
-        customerDAO.update(customer);
-
-        log.info("Customer updated successfully. Customer ID: {}", customerId);
-
-        return mapToResponse(customer);
+    public CustomerResponse updateCustomer(Long customerId, UpdateCustomerRequest request) {
+        request.setCustomerId(customerId); // Pass the ID to the use case
+        return updateCustomerUseCase.execute(request);
     }
 
     @Override
     @Transactional(rollbackOn = Exception.class)
     public void closeCustomer(Long customerId) {
-
-        log.info("Closing customer with ID: {}", customerId);
-
-        Customer customer = getCustomerOrThrow(customerId);
-
-        customerDAO.closeCustomer(customerId);
-
-        log.info("Customer closed successfully. Customer ID: {}", customerId);
+        closeCustomerUseCase.execute(customerId);
     }
 
     private CustomerResponse mapToResponse(Customer customer) {
@@ -210,57 +142,6 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
     }
 
-    /**
-     * Validates duplicate customer information.
-     *
-     * @param customer Existing customer
-     * @param request Customer request
-     */
-    private void validateDuplicateCustomer(
-            Customer customer,
-            UpdateCustomerRequest request) {
-
-        // Validate Citizenship Number
-        if (!customer.getCitizenshipNumber().equals(request.getCitizenshipNumber())) {
-
-            Customer existingCustomer =
-                    customerDAO.findByCitizenshipNumber(request.getCitizenshipNumber());
-
-            if (existingCustomer != null) {
-                throw new DuplicateCustomerException(
-                        "Citizenship number already exists.");
-            }
-        }
-
-        // Validate PAN Number
-        if (request.getPanNumber() != null
-                && !request.getPanNumber().equals(customer.getPanNumber())) {
-
-            Customer existingCustomer =
-                    customerDAO.findByPanNumber(request.getPanNumber());
-
-            if (existingCustomer != null) {
-                throw new DuplicateCustomerException(
-                        "PAN number already exists.");
-            }
-        }
-
-        // Validate Email
-        if (!customer.getEmail().equals(request.getEmail())) {
-
-            Customer existingCustomer =
-                    customerDAO.findByEmail(request.getEmail());
-
-            if (existingCustomer != null) {
-                throw new DuplicateCustomerException(
-                        "Email already exists.");
-            }
-        }
-    }
-
-    /**
-     * Returns customer if found otherwise throws exception.
-     */
     private Customer getCustomerOrThrow(Long customerId) {
 
         Customer customer = customerDAO.findById(customerId);

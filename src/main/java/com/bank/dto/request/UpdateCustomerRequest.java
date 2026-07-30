@@ -21,6 +21,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class UpdateCustomerRequest {
 
+    @NotNull(message = "Customer ID is required")
+    private Long customerId;
+
     @NotBlank(message = "First name is required")
     @Size(max = 100)
     private String firstName;

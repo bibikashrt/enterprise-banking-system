@@ -17,6 +17,9 @@ import com.bank.exception.AccountNotFoundException;
 import com.bank.exception.InvalidOperationException;
 import com.bank.exception.TransactionNotFoundException;
 import com.bank.service.TransactionService;
+import com.bank.usecase.transaction.DepositUseCase;
+import com.bank.usecase.transaction.TransferUseCase;
+import com.bank.usecase.transaction.WithdrawUseCase;
 import com.bank.util.TransactionReferenceGenerator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,6 +35,15 @@ import java.util.List;
 public class TransactionServiceImpl implements TransactionService {
 
     @Inject
+    private DepositUseCase depositUseCase;
+
+    @Inject
+    private WithdrawUseCase withdrawUseCase;
+
+    @Inject
+    private TransferUseCase transferUseCase;
+
+    @Inject
     private TransactionDAO transactionDAO;
 
     @Inject
@@ -41,236 +53,18 @@ public class TransactionServiceImpl implements TransactionService {
     private AuditLogDAO auditLogDAO;
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
     public TransactionResponse deposit(DepositRequest request) {
-
-        log.info("Depositing {} into account ID: {}",
-                request.getAmount(),
-                request.getAccountId());
-
-        Account account = accountDAO.findById(request.getAccountId());
-
-        if (account == null) {
-            throw new AccountNotFoundException(
-                    "Account not found with ID: " + request.getAccountId());
-        }
-
-        if (account.getAccountStatus() != AccountStatus.ACTIVE) {
-            throw new InvalidOperationException(
-                    "Account is not active.");
-        }
-
-        BigDecimal newBalance =
-                account.getAvailableBalance().add(request.getAmount());
-
-        account.setAvailableBalance(newBalance);
-        account.setLedgerBalance(newBalance);
-
-        accountDAO.updateBalance(account);
-
-        Transaction transaction = Transaction.builder()
-                .transactionReference(
-                        TransactionReferenceGenerator.generate())
-                .accountId(account.getAccountId())
-                .transactionType(TransactionType.DEPOSIT)
-                .amount(request.getAmount())
-                .balanceAfter(newBalance)
-                .description(request.getDescription())
-                .transactionStatus(TransactionStatus.SUCCESS)
-                .build();
-
-        transactionDAO.save(transaction);
-
-        AuditLog auditLog = AuditLog.builder()
-                .action("DEPOSIT")
-                .entityName("ACCOUNT")
-                .entityId(account.getAccountId())
-                .description("Deposit completed successfully.")
-                .build();
-
-        auditLogDAO.save(auditLog);
-
-        log.info("Deposit completed successfully. Transaction Reference: {}",
-                transaction.getTransactionReference());
-
-        return mapToResponse(transaction);
+        return depositUseCase.execute(request);
     }
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
     public TransactionResponse withdraw(WithdrawRequest request) {
-
-        log.info("Withdrawing {} from account ID: {}",
-                request.getAmount(),
-                request.getAccountId());
-
-        Account account = accountDAO.findById(request.getAccountId());
-
-        if (account == null) {
-            throw new AccountNotFoundException(
-                    "Account not found with ID: " + request.getAccountId());
-        }
-
-        if (account.getAccountStatus() != AccountStatus.ACTIVE) {
-            throw new InvalidOperationException(
-                    "Account is not active.");
-        }
-
-        if (account.getAvailableBalance().compareTo(request.getAmount()) < 0) {
-            throw new InvalidOperationException(
-                    "Insufficient balance.");
-        }
-
-        BigDecimal newBalance =
-                account.getAvailableBalance().subtract(request.getAmount());
-
-        account.setAvailableBalance(newBalance);
-        account.setLedgerBalance(newBalance);
-
-        accountDAO.updateBalance(account);
-
-        Transaction transaction = Transaction.builder()
-                .transactionReference(
-                        TransactionReferenceGenerator.generate())
-                .accountId(account.getAccountId())
-                .transactionType(TransactionType.WITHDRAW)
-                .amount(request.getAmount())
-                .balanceAfter(newBalance)
-                .description(request.getDescription())
-                .transactionStatus(TransactionStatus.SUCCESS)
-                .build();
-
-        transactionDAO.save(transaction);
-
-        AuditLog auditLog = AuditLog.builder()
-                .action("WITHDRAW")
-                .entityName("ACCOUNT")
-                .entityId(account.getAccountId())
-                .description("Withdrawal completed successfully.")
-                .build();
-
-        auditLogDAO.save(auditLog);
-
-        log.info("Withdrawal completed successfully. Transaction Reference: {}",
-                transaction.getTransactionReference());
-
-        return mapToResponse(transaction);
+        return withdrawUseCase.execute(request);
     }
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
     public TransactionResponse transfer(TransferRequest request) {
-        log.info("Transferring {} from account {} to account {}",
-                request.getAmount(),
-                request.getFromAccountId(),
-                request.getToAccountId());
-
-        if (request.getFromAccountId().equals(request.getToAccountId())) {
-            throw new InvalidOperationException(
-                    "Source and destination accounts cannot be the same.");
-        }
-
-        Account fromAccount = accountDAO.findById(request.getFromAccountId());
-
-        if (fromAccount == null) {
-            throw new AccountNotFoundException(
-                    "Source account not found.");
-        }
-
-        Account toAccount = accountDAO.findById(request.getToAccountId());
-
-        if (toAccount == null) {
-            throw new AccountNotFoundException(
-                    "Destination account not found.");
-        }
-
-        if (fromAccount.getAccountStatus() != AccountStatus.ACTIVE) {
-            throw new InvalidOperationException(
-                    "Source account is not active.");
-        }
-
-        if (toAccount.getAccountStatus() != AccountStatus.ACTIVE) {
-            throw new InvalidOperationException(
-                    "Destination account is not active.");
-        }
-
-        if (fromAccount.getAvailableBalance().compareTo(request.getAmount()) < 0) {
-            throw new InvalidOperationException(
-                    "Insufficient balance.");
-        }
-
-        BigDecimal senderBalance =
-                fromAccount.getAvailableBalance().subtract(request.getAmount());
-
-        BigDecimal receiverBalance =
-                toAccount.getAvailableBalance().add(request.getAmount());
-
-        fromAccount.setAvailableBalance(senderBalance);
-        fromAccount.setLedgerBalance(senderBalance);
-
-        toAccount.setAvailableBalance(receiverBalance);
-        toAccount.setLedgerBalance(receiverBalance);
-
-        if (accountDAO.updateBalance(fromAccount) == 0) {
-            throw new InvalidOperationException(
-                    "Failed to update source account balance.");
-        }
-
-        if (accountDAO.updateBalance(toAccount) == 0) {
-            throw new InvalidOperationException(
-                    "Failed to update destination account balance.");
-        }
-
-        String reference =
-                TransactionReferenceGenerator.generate();
-
-        Transaction debitTransaction = Transaction.builder()
-                .transactionReference(reference)
-                .accountId(fromAccount.getAccountId())
-                .counterpartyAccountId(toAccount.getAccountId())
-                .transactionType(TransactionType.TRANSFER)
-                .amount(request.getAmount())
-                .balanceAfter(senderBalance)
-                .description("Transfer to Account ID: "
-                        + toAccount.getAccountId()
-                        + ". "
-                        + request.getDescription())
-                .transactionStatus(TransactionStatus.SUCCESS)
-                .build();
-
-        transactionDAO.save(debitTransaction);
-
-        Transaction creditTransaction = Transaction.builder()
-                .transactionReference(reference)
-                .accountId(toAccount.getAccountId())
-                .counterpartyAccountId(fromAccount.getAccountId())
-                .transactionType(TransactionType.TRANSFER)
-                .amount(request.getAmount())
-                .balanceAfter(receiverBalance)
-                .description("Transfer from Account ID: "
-                        + fromAccount.getAccountId()
-                        + ". "
-                        + request.getDescription())
-                .transactionStatus(TransactionStatus.SUCCESS)
-                .build();
-
-        transactionDAO.save(creditTransaction);
-
-        AuditLog auditLog = AuditLog.builder()
-                .action("TRANSFER")
-                .entityName("ACCOUNT")
-                .entityId(fromAccount.getAccountId())
-                .description("Fund transfer completed successfully.")
-                .build();
-
-        auditLogDAO.save(auditLog);
-
-        log.info(
-                "Transfer completed successfully. Reference: {}, Amount: {}",
-                reference,
-                request.getAmount());
-
-        return mapToResponse(debitTransaction);
+        return transferUseCase.execute(request);
     }
 
 

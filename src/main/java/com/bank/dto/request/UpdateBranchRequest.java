@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateBranchRequest {
 
+    private Long branchId;
+
     @NotBlank(message = "Branch name is required")
     private String branchName;
 

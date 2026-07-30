@@ -11,7 +11,6 @@ import com.bank.entity.Account;
 import com.bank.entity.AuditLog;
 import com.bank.entity.Branch;
 import com.bank.entity.Customer;
-import com.bank.enums.AccountStatus;
 import com.bank.enums.BranchStatus;
 import com.bank.enums.CustomerStatus;
 import com.bank.exception.AccountNotFoundException;
@@ -19,7 +18,9 @@ import com.bank.exception.BranchNotFoundException;
 import com.bank.exception.CustomerNotFoundException;
 import com.bank.exception.InvalidOperationException;
 import com.bank.service.AccountService;
-import com.bank.util.AccountNumberGenerator;
+import com.bank.usecase.account.CloseAccountUseCase;
+import com.bank.usecase.account.CreateAccountUseCase;
+import com.bank.usecase.account.UpdateAccountUseCase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -34,6 +35,15 @@ import java.util.List;
 public class AccountServiceImpl implements AccountService {
 
     @Inject
+    private CreateAccountUseCase createAccountUseCase;
+
+    @Inject
+    private UpdateAccountUseCase updateAccountUseCase;
+
+    @Inject
+    private CloseAccountUseCase closeAccountUseCase;
+
+    @Inject
     private AccountDAO accountDAO;
 
     @Inject
@@ -46,37 +56,8 @@ public class AccountServiceImpl implements AccountService {
     private AuditLogDAO auditLogDAO;
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
     public AccountResponse createAccount(CreateAccountRequest request) {
-
-        log.info("Creating account for customer ID: {}", request.getCustomerId());
-
-        Customer customer = validateCustomer(request.getCustomerId());
-
-        Branch branch = validateBranch(request.getBranchId());
-
-        Account account = Account.builder()
-                .accountNumber(AccountNumberGenerator.generate())
-                .customerId(customer.getCustomerId())
-                .branchId(branch.getBranchId())
-                .accountType(request.getAccountType())
-                .currency(request.getCurrency())
-                .availableBalance(BigDecimal.ZERO)
-                .ledgerBalance(BigDecimal.ZERO)
-                .accountStatus(AccountStatus.ACTIVE)
-                .build();
-
-        accountDAO.save(account);
-
-        createAuditLog(
-                "CREATE",
-                account.getAccountId(),
-                "Account created successfully.");
-
-        log.info("Account created successfully. Account Number: {}",
-                account.getAccountNumber());
-
-        return mapToResponse(account);
+        return createAccountUseCase.execute(request);
     }
 
 
@@ -182,44 +163,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional(rollbackOn = Exception.class)
-    public AccountResponse updateAccount(Long accountId,
-                                         UpdateAccountRequest request) {
-
-        log.info("Updating account with ID: {}", accountId);
-
-        Account account = getAccountOrThrow(accountId);
-
-        account.setAccountStatus(request.getAccountStatus());
-
-        accountDAO.update(account);
-
-        createAuditLog(
-                "UPDATE",
-                account.getAccountId(),
-                "Account updated successfully.");
-
-        log.info("Account updated successfully. Account ID: {}", accountId);
-
-        return mapToResponse(account);
+    public AccountResponse updateAccount(Long accountId, UpdateAccountRequest request) {
+        request.setAccountId(accountId);
+        return updateAccountUseCase.execute(request);
     }
 
     @Override
     @Transactional(rollbackOn = Exception.class)
     public void closeAccount(Long accountId) {
-
-        log.info("Closing account with ID: {}", accountId);
-
-        Account account = getAccountOrThrow(accountId);
-
-        accountDAO.closeAccount(accountId);
-
-        createAuditLog(
-                "CLOSE",
-                accountId,
-                "Account closed successfully.");
-
-        log.info("Account closed successfully. Account ID: {}", accountId);
+        closeAccountUseCase.execute(accountId);
     }
 
     private AccountResponse mapToResponse(Account account) {

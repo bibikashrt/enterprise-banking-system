@@ -16,4 +16,6 @@ public class UpdateAccountRequest {
     @NotNull(message = "Account status is required")
     private AccountStatus accountStatus;
 
+    private Long accountId;
+
 }
