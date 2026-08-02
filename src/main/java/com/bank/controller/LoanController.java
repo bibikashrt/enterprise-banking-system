@@ -203,6 +203,7 @@ public class LoanController {
 
     @PUT
     @Path("/{loanId}/reject")
+    @RolesAllowed("MANAGER")
     public Response rejectLoan(
             @PathParam("loanId") Long loanId) {
 
@@ -222,6 +223,7 @@ public class LoanController {
 
     @PUT
     @Path("/{loanId}/disburse")
+    @RolesAllowed("MANAGER")
     public Response disburseLoan(
             @PathParam("loanId") Long loanId) {
 

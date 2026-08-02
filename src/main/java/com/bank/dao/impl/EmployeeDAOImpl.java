@@ -17,6 +17,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
     @Inject
     private SqlSession sqlSession;
 
+
     private EmployeeMapper mapper() {
         return sqlSession.getMapper(EmployeeMapper.class);
     }
@@ -28,6 +29,18 @@ public class EmployeeDAOImpl implements EmployeeDAO {
                 employee.getEmployeeNumber());
 
         return mapper().insert(employee);
+    }
+
+    @Override
+    public void changePassword(
+            Long employeeId,
+            String passwordHash
+    ) {
+
+        mapper().changePassword(
+                employeeId,
+                passwordHash
+        );
     }
 
     @Override

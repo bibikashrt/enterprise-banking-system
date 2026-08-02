@@ -1,9 +1,11 @@
 package com.bank.mapper;
 
 import com.bank.entity.Employee;
+
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+
 
 public interface EmployeeMapper {
 
@@ -30,4 +32,9 @@ public interface EmployeeMapper {
 
     int deactivate(
             @Param("employeeId") Long employeeId);
+
+    void changePassword(
+            @Param("employeeId") Long employeeId,
+            @Param("passwordHash") String passwordHash
+    );
 }

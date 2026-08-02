@@ -3,6 +3,7 @@ package com.bank.controller;
 import com.bank.dto.request.CreateEmployeeRequest;
 import com.bank.dto.request.UpdateEmployeeRequest;
 import com.bank.dto.response.EmployeeResponse;
+import com.bank.dto.response.CreateEmployeeResponse;
 import com.bank.model.ApiResponse;
 import com.bank.security.Secured;
 import com.bank.service.EmployeeService;
@@ -29,11 +30,11 @@ public class EmployeeController {
     public Response createEmployee(
             @Valid CreateEmployeeRequest request) {
 
-        EmployeeResponse response =
+        CreateEmployeeResponse response =
                 employeeService.createEmployee(request);
 
-        ApiResponse<EmployeeResponse> apiResponse =
-                ApiResponse.<EmployeeResponse>builder()
+        ApiResponse<CreateEmployeeResponse> apiResponse =
+                ApiResponse.<CreateEmployeeResponse>builder()
                         .success(true)
                         .message("Employee created successfully.")
                         .code(Response.Status.CREATED.getStatusCode())

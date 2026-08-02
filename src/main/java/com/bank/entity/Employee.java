@@ -31,6 +31,8 @@ public class Employee {
 
     private String passwordHash;
 
+    private Boolean passwordChanged;
+
     private EmployeeRole employeeRole;
 
     private EmployeeStatus employeeStatus;

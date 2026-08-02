@@ -2,6 +2,7 @@ package com.bank.service.impl;
 
 import com.bank.config.JwtProperties;
 import com.bank.dao.AuthDAO;
+import com.bank.dto.request.ChangePasswordRequest;
 import com.bank.dto.request.LoginRequest;
 import com.bank.dto.response.LoginResponse;
 import com.bank.entity.Employee;
@@ -10,6 +11,7 @@ import com.bank.exception.AuthenticationException;
 import com.bank.exception.InvalidOperationException;
 import com.bank.service.AuthService;
 import com.bank.security.JwtUtil;
+import com.bank.usecase.employee.ChangePasswordUseCase;
 import com.bank.util.PasswordUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -27,6 +29,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Inject
     private JwtProperties jwtProperties;
+
+    @Inject
+    private ChangePasswordUseCase changePasswordUseCase;
 
     @Override
     public LoginResponse login(LoginRequest request) {
@@ -62,6 +67,19 @@ public class AuthServiceImpl implements AuthService {
                 .employeeName(employee.getFirstName() + " " + employee.getLastName())
                 .role(employee.getEmployeeRole())
                 .expiresIn(jwtProperties.getExpiration() / 1000)
+                .forcePasswordChange(Boolean.FALSE.equals(employee.getPasswordChanged()))
                 .build();
+    }
+
+    @Override
+    public void changePassword(
+            Long employeeId,
+            ChangePasswordRequest request
+    ) {
+
+        changePasswordUseCase.execute(
+                employeeId,
+                request
+        );
     }
 }

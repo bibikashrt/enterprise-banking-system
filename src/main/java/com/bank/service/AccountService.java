@@ -1,5 +1,6 @@
 package com.bank.service;
 
+import com.bank.dto.request.ChangePasswordRequest;
 import com.bank.dto.request.CreateAccountRequest;
 import com.bank.dto.request.UpdateAccountRequest;
 import com.bank.dto.response.AccountResponse;

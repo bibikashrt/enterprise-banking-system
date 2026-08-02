@@ -18,7 +18,9 @@ public record LoginResponse(
 
         EmployeeRole role,
 
-        Long expiresIn
+        Long expiresIn,
+
+        Boolean forcePasswordChange
 
 ) {
 }

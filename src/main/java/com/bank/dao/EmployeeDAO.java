@@ -23,4 +23,6 @@ public interface EmployeeDAO {
     int update(Employee employee);
 
     int deactivate(Long employeeId);
+
+    void changePassword(Long employeeId,String passwordHash);
 }

@@ -16,6 +16,7 @@
         <result property="email" column="email"/>
         <result property="phoneNumber" column="phone_number"/>
         <result property="passwordHash" column="password_hash"/>
+        <result property="passwordChanged" column="password_changed"/>
         <result property="employeeRole" column="employee_role"/>
         <result property="employeeStatus" column="employee_status"/>
         <result property="createdAt" column="created_at"/>
@@ -36,6 +37,7 @@
         email,
         phone_number,
         password_hash,
+        password_changed,
         employee_role,
         employee_status,
         created_at,

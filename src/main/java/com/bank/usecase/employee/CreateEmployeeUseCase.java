@@ -4,19 +4,23 @@ import com.bank.dao.EmployeeDAO;
 import com.bank.dao.BranchDAO;
 import com.bank.dao.AuditLogDAO;
 import com.bank.dto.request.CreateEmployeeRequest;
-import com.bank.dto.response.EmployeeResponse;
+import com.bank.dto.response.CreateEmployeeResponse;
 import com.bank.entity.Employee;
 import com.bank.entity.Branch;
 import com.bank.entity.AuditLog;
 import com.bank.enums.EmployeeStatus;
 import com.bank.exception.InvalidOperationException;
 import com.bank.util.EmployeeNumberGenerator;
+import com.bank.util.PasswordGenerator;
+import com.bank.util.PasswordUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class CreateEmployeeUseCase {
+
+
 
     @Inject
     private EmployeeDAO employeeDAO;
@@ -28,7 +32,9 @@ public class CreateEmployeeUseCase {
     private AuditLogDAO auditLogDAO;
 
     @Transactional(rollbackOn = Exception.class)
-    public EmployeeResponse execute(CreateEmployeeRequest request) {
+    public CreateEmployeeResponse execute(CreateEmployeeRequest request) {
+        String temporaryPassword =
+                PasswordGenerator.generate();
 
         Branch branch = branchDAO.findById(request.getBranchId());
         if (branch == null) throw new InvalidOperationException("Branch not found");
@@ -43,6 +49,11 @@ public class CreateEmployeeUseCase {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
+                .passwordHash(
+                        PasswordUtil.hashPassword(temporaryPassword)
+                )
+                .passwordChanged(false)
+                .employeeRole(request.getEmployeeRole())
                 .employeeStatus(EmployeeStatus.ACTIVE)
                 .build();
 
@@ -56,19 +67,13 @@ public class CreateEmployeeUseCase {
                 .build();
         auditLogDAO.save(auditLog);
 
-        return mapToResponse(employee);
-    }
-
-    private EmployeeResponse mapToResponse(Employee employee) {
-        return EmployeeResponse.builder()
+        return CreateEmployeeResponse.builder()
                 .employeeId(employee.getEmployeeId())
                 .employeeNumber(employee.getEmployeeNumber())
-                .branchId(employee.getBranchId())
-                .firstName(employee.getFirstName())
-                .lastName(employee.getLastName())
                 .email(employee.getEmail())
-                .employeeStatus(employee.getEmployeeStatus())
-                .createdAt(employee.getCreatedAt())
+                .temporaryPassword(temporaryPassword)
                 .build();
     }
+
+
 }

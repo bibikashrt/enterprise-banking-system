@@ -2,13 +2,14 @@ package com.bank.service;
 
 import com.bank.dto.request.CreateEmployeeRequest;
 import com.bank.dto.request.UpdateEmployeeRequest;
+import com.bank.dto.response.CreateEmployeeResponse;
 import com.bank.dto.response.EmployeeResponse;
 
 import java.util.List;
 
 public interface EmployeeService {
 
-    EmployeeResponse createEmployee(
+    CreateEmployeeResponse createEmployee(
             CreateEmployeeRequest request);
 
     EmployeeResponse getEmployeeById(

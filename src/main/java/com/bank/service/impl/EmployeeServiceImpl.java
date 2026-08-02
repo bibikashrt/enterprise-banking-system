@@ -5,6 +5,7 @@ import com.bank.dao.BranchDAO;
 import com.bank.dao.EmployeeDAO;
 import com.bank.dto.request.CreateEmployeeRequest;
 import com.bank.dto.request.UpdateEmployeeRequest;
+import com.bank.dto.response.CreateEmployeeResponse;
 import com.bank.dto.response.EmployeeResponse;
 import com.bank.entity.Branch;
 import com.bank.entity.Employee;
@@ -45,7 +46,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private AuditLogDAO auditLogDAO;
 
     @Override
-    public EmployeeResponse createEmployee(CreateEmployeeRequest request) {
+    public CreateEmployeeResponse createEmployee(CreateEmployeeRequest request) {
         return createEmployeeUseCase.execute(request);
     }
 

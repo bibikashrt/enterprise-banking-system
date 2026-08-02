@@ -30,6 +30,12 @@
         <result property="phoneNumber"
                 column="phone_number"/>
 
+        <result property="passwordHash"
+                column="password_hash"/>
+
+        <result property="passwordChanged"
+                column="password_changed"/>
+
         <result property="employeeRole"
                 column="employee_role"
                 javaType="com.bank.enums.EmployeeRole"/>
@@ -60,6 +66,8 @@
         last_name,
         email,
         phone_number,
+        password_hash,
+        password_changed,
         employee_role,
         employee_status
         )
@@ -71,6 +79,8 @@
         #{lastName},
         #{email},
         #{phoneNumber},
+        #{passwordHash},
+        #{passwordHash},
         #{employeeRole},
         #{employeeStatus}
         )
@@ -89,6 +99,8 @@
         last_name,
         email,
         phone_number,
+        password_hash,
+        password_changed,
         employee_role,
         employee_status,
         created_at,
@@ -110,6 +122,8 @@
         last_name,
         email,
         phone_number,
+        password_hash,
+        password_changed,
         employee_role,
         employee_status,
         created_at,
@@ -131,6 +145,8 @@
         last_name,
         email,
         phone_number,
+        password_hash,
+        password_changed,
         employee_role,
         employee_status,
         created_at,
@@ -152,6 +168,8 @@
         last_name,
         email,
         phone_number,
+        password_hash,
+        password_changed,
         employee_role,
         employee_status,
         created_at,
@@ -174,6 +192,8 @@
         last_name,
         email,
         phone_number,
+        password_hash,
+        password_changed,
         employee_role,
         employee_status,
         created_at,
@@ -195,6 +215,8 @@
         last_name,
         email,
         phone_number,
+        password_hash,
+        password_changed,
         employee_role,
         employee_status,
         created_at,
@@ -239,6 +261,17 @@
         UPDATE employee
         SET
         employee_status = 'INACTIVE',
+        updated_at = CURRENT_TIMESTAMP
+        WHERE employee_id = #{employeeId}
+
+    </update>
+
+    <update id="changePassword">
+
+        UPDATE employee
+        SET
+        password_hash = #{passwordHash},
+        password_changed = true,
         updated_at = CURRENT_TIMESTAMP
         WHERE employee_id = #{employeeId}
 
