@@ -38,8 +38,7 @@ build/
 ### Mac OS ###
 .DS_Store
 
-# Maven
-pom.xml
+
 
 # MicroProfile config
 src/main/resources/META-INF/microprofile-config.properties
