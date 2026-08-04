@@ -13,8 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 @ApplicationScoped
 public class JwtUtil {
 
@@ -28,14 +29,19 @@ public class JwtUtil {
     @PostConstruct
     private void init() {
 
-        System.out.println(
-                "JWT SECRET = " + jwtProperties.getSecret()
-        );
-
-        System.out.println("JWT EXPIRATION = "
-                + jwtProperties.getExpiration());
+//        System.out.println(
+//                "JWT SECRET = " + jwtProperties.getSecret()
+//        );
+//
+//        System.out.println("JWT EXPIRATION = "
+//                + jwtProperties.getExpiration());
         key = Keys.hmacShaKeyFor(
                 jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8)
+        );
+
+        log.info(
+                "JWT initialized successfully. Expiration: {} ms",
+                jwtProperties.getExpiration()
         );
     }
 
