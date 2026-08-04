@@ -33,6 +33,27 @@ public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
                     .build();
         }
 
+        if (exception instanceof ConcurrentUpdateException) {
+
+            LOGGER.warn(
+                    "Concurrent update detected: {}",
+                    exception.getMessage()
+            );
+
+            return Response.status(
+                            Response.Status.CONFLICT
+                    )
+                    .entity(
+                            ApiResponse.<Void>builder()
+                                    .success(false)
+                                    .message(exception.getMessage())
+                                    .code(409)
+                                    .build()
+                    )
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .success(false)
                 .message("An unexpected error occurred.")

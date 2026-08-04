@@ -12,6 +12,7 @@ import com.bank.enums.AccountStatus;
 import com.bank.enums.TransactionStatus;
 import com.bank.enums.TransactionType;
 import com.bank.exception.AccountNotFoundException;
+import com.bank.exception.ConcurrentUpdateException;
 import com.bank.exception.InvalidOperationException;
 
 import com.bank.util.TransactionReferenceGenerator;
@@ -93,7 +94,16 @@ public class DepositUseCase {
         );
 
 
-        accountDAO.updateBalance(account);
+        int updated =
+                accountDAO.updateBalance(account);
+
+
+        if(updated == 0){
+
+            throw new ConcurrentUpdateException(
+                    "Account was updated by another transaction."
+            );
+        }
 
 
 

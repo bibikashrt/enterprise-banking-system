@@ -12,6 +12,7 @@ import com.bank.enums.AccountStatus;
 import com.bank.enums.TransactionStatus;
 import com.bank.enums.TransactionType;
 import com.bank.exception.AccountNotFoundException;
+import com.bank.exception.ConcurrentUpdateException;
 import com.bank.exception.InvalidOperationException;
 import com.bank.util.TransactionReferenceGenerator;
 
@@ -158,22 +159,29 @@ public class TransferUseCase {
 
 
 
-        if(accountDAO.updateBalance(fromAccount) == 0){
+        int senderUpdated =
+                accountDAO.updateBalance(fromAccount);
 
-            throw new InvalidOperationException(
-                    "Failed to update sender account."
+
+        if(senderUpdated == 0){
+
+            throw new ConcurrentUpdateException(
+                    "Sender account was updated by another transaction."
             );
         }
 
 
 
-        if(accountDAO.updateBalance(toAccount) == 0){
+        int receiverUpdated =
+                accountDAO.updateBalance(toAccount);
 
-            throw new InvalidOperationException(
-                    "Failed to update receiver account."
+
+        if(receiverUpdated == 0){
+
+            throw new ConcurrentUpdateException(
+                    "Receiver account was updated by another transaction."
             );
         }
-
 
 
         String reference =

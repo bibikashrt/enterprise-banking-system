@@ -39,4 +39,6 @@ public class Account {
 
     private LocalDateTime updatedAt;
 
+    private Long version;
+
 }

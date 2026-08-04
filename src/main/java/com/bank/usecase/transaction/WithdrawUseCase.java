@@ -13,6 +13,7 @@ import com.bank.enums.TransactionStatus;
 import com.bank.enums.TransactionType;
 import com.bank.exception.AccountNotFoundException;
 import com.bank.exception.InvalidOperationException;
+import com.bank.exception.ConcurrentUpdateException;
 import com.bank.util.TransactionReferenceGenerator;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -101,7 +102,16 @@ public class WithdrawUseCase {
 
 
 
-        accountDAO.updateBalance(account);
+        int updated =
+                accountDAO.updateBalance(account);
+
+
+        if(updated == 0){
+
+            throw new ConcurrentUpdateException(
+                    "Account was updated by another transaction."
+            );
+        }
 
 
 
