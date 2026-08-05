@@ -1,20 +1,12 @@
 package com.bank.usecase.loan;
 
-import com.bank.dao.AccountDAO;
-import com.bank.dao.AuditLogDAO;
-import com.bank.dao.LoanDAO;
-import com.bank.dao.TransactionDAO;
+import com.bank.dao.*;
 import com.bank.dto.request.CreateLoanRepaymentRequest;
 import com.bank.dto.response.LoanRepaymentResponse;
-import com.bank.entity.Account;
-import com.bank.entity.AuditLog;
-import com.bank.entity.Loan;
-import com.bank.entity.Transaction;
-import com.bank.enums.AccountStatus;
-import com.bank.enums.LoanStatus;
-import com.bank.enums.TransactionStatus;
-import com.bank.enums.TransactionType;
+import com.bank.entity.*;
+import com.bank.enums.*;
 import com.bank.exception.AccountNotFoundException;
+import com.bank.exception.ConcurrentUpdateException;
 import com.bank.exception.InvalidOperationException;
 import com.bank.exception.LoanNotFoundException;
 import com.bank.util.TransactionReferenceGenerator;
@@ -47,6 +39,12 @@ public class RepayLoanUseCase {
 
     @Inject
     private AuditLogDAO auditLogDAO;
+
+    @Inject
+    private LoanRepaymentScheduleDAO scheduleDAO;
+
+    @Inject
+    private LoanRepaymentDAO repaymentDAO;
 
 
 
@@ -110,10 +108,31 @@ public class RepayLoanUseCase {
             );
         }
 
+        LoanRepaymentSchedule schedule =
+                scheduleDAO.findNextPendingSchedule(
+                        loan.getLoanId()
+                );
+
+
+        if(schedule == null){
+
+            throw new InvalidOperationException(
+                    "No pending repayment schedule found."
+            );
+        }
+
 
 
         BigDecimal repaymentAmount =
                 request.getAmount();
+
+        if(repaymentAmount.compareTo(
+                schedule.getTotalAmount()) < 0){
+
+            throw new InvalidOperationException(
+                    "Repayment amount is less than installment amount."
+            );
+        }
 
         if (repaymentAmount.compareTo(
                 loan.getOutstandingBalance()) > 0) {
@@ -154,7 +173,33 @@ public class RepayLoanUseCase {
         );
 
 
-        accountDAO.updateBalance(account);
+        int updatedAccount =
+                accountDAO.updateBalance(account);
+
+
+        if(updatedAccount == 0){
+
+            throw new ConcurrentUpdateException(
+                    "Account balance was updated by another transaction."
+            );
+        }
+
+        // Update repayment schedule
+
+        schedule.setScheduleStatus(
+                ScheduleStatus.PAID
+        );
+
+        int updatedSchedule =
+                scheduleDAO.updateStatus(schedule);
+
+
+        if(updatedSchedule == 0){
+
+            throw new InvalidOperationException(
+                    "Repayment schedule update failed."
+            );
+        }
 
 
 
@@ -162,7 +207,9 @@ public class RepayLoanUseCase {
 
         BigDecimal newOutstandingBalance =
                 loan.getOutstandingBalance()
-                        .subtract(repaymentAmount);
+                        .subtract(
+                                schedule.getPrincipalAmount()
+                        );
 
 
 
@@ -185,7 +232,17 @@ public class RepayLoanUseCase {
 
 
 
-        loanDAO.repay(loan);
+        int updatedLoan =
+                loanDAO.repay(loan);
+
+
+        if(updatedLoan == 0){
+
+            throw new InvalidOperationException(
+                    "Loan balance update failed."
+            );
+        }
+
 
 
 
@@ -212,13 +269,49 @@ public class RepayLoanUseCase {
                                 TransactionStatus.SUCCESS
                         )
                         .description(
-                                "Loan repayment completed."
+                                "Loan installment "
+                                        + schedule.getInstallmentNumber()
+                                        + " repayment completed."
                         )
                         .build();
 
 
 
         transactionDAO.save(transaction);
+
+        LoanRepayment repayment =
+                LoanRepayment.builder()
+                        .loanId(
+                                loan.getLoanId()
+                        )
+                        .scheduleId(
+                                schedule.getScheduleId()
+                        )
+                        .amountPaid(
+                                repaymentAmount
+                        )
+                        .paymentMethod(
+                                "ACCOUNT"
+                        )
+                        .repaymentStatus(
+                                RepaymentStatus.PAID
+                        )
+                        .transactionReference(
+                                null
+                        )
+                        .build();
+
+
+        int savedRepayment =
+                repaymentDAO.save(repayment);
+
+
+        if(savedRepayment == 0){
+
+            throw new InvalidOperationException(
+                    "Loan repayment record could not be saved."
+            );
+        }
 
 
 
@@ -232,7 +325,9 @@ public class RepayLoanUseCase {
                                 loan.getLoanId()
                         )
                         .description(
-                                "Loan repayment completed successfully."
+                                "Loan installment "
+                                        + schedule.getInstallmentNumber()
+                                        + " repayment completed."
                         )
                         .build();
 

@@ -39,6 +39,9 @@ public class DisburseLoanUseCase {
     @Inject
     private AccountDAO accountDAO;
 
+    @Inject
+    private GenerateRepaymentScheduleUseCase generateRepaymentScheduleUseCase;
+
 
     @Inject
     private TransactionDAO transactionDAO;
@@ -135,7 +138,16 @@ public class DisburseLoanUseCase {
         );
 
 
-        accountDAO.update(account);
+        int updatedAccount =
+                accountDAO.updateBalance(account);
+
+
+        if(updatedAccount == 0){
+
+            throw new InvalidOperationException(
+                    "Account balance update failed."
+            );
+        }
 
 
 
@@ -157,6 +169,10 @@ public class DisburseLoanUseCase {
         }
 
         loan = loanDAO.findById(loanId);
+
+        generateRepaymentScheduleUseCase.execute(
+                loan.getLoanId()
+        );
 
 
 

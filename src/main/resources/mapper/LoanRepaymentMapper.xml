@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bank.mapper.LoanRepaymentMapper">
+
+
+    <resultMap id="loanRepaymentResultMap"
+               type="com.bank.entity.LoanRepayment">
+
+
+        <id property="repaymentId"
+            column="repayment_id"/>
+
+
+        <result property="loanId"
+                column="loan_id"/>
+
+
+        <result property="scheduleId"
+                column="schedule_id"/>
+
+
+        <result property="amountPaid"
+                column="amount_paid"/>
+
+
+        <result property="paymentDate"
+                column="payment_date"/>
+
+
+        <result property="paymentMethod"
+                column="payment_method"/>
+
+
+        <result property="repaymentStatus"
+                column="repayment_status"/>
+
+
+        <result property="transactionReference"
+                column="transaction_reference"/>
+
+
+        <result property="createdAt"
+                column="created_at"/>
+
+
+    </resultMap>
+
+
+
+    <!-- Insert repayment -->
+
+    <insert id="insert"
+            parameterType="com.bank.entity.LoanRepayment"
+            useGeneratedKeys="true"
+            keyProperty="repaymentId">
+
+
+        INSERT INTO loan_repayment
+        (
+        loan_id,
+        schedule_id,
+        amount_paid,
+        payment_method,
+        repayment_status,
+        transaction_reference
+        )
+
+        VALUES
+        (
+        #{loanId},
+        #{scheduleId},
+        #{amountPaid},
+        #{paymentMethod},
+        #{repaymentStatus},
+        #{transactionReference}
+        )
+
+
+    </insert>
+
+
+
+    <!-- Find by repayment id -->
+
+    <select id="findById"
+            resultMap="loanRepaymentResultMap">
+
+
+        SELECT *
+
+        FROM loan_repayment
+
+        WHERE repayment_id = #{repaymentId}
+
+
+    </select>
+
+
+
+    <!-- Loan repayment history -->
+
+    <select id="findByLoanId"
+            resultMap="loanRepaymentResultMap">
+
+
+        SELECT *
+
+        FROM loan_repayment
+
+        WHERE loan_id = #{loanId}
+
+        ORDER BY payment_date DESC
+
+
+    </select>
+
+
+
+    <!-- Schedule payment history -->
+
+    <select id="findByScheduleId"
+            resultMap="loanRepaymentResultMap">
+
+
+        SELECT *
+
+        FROM loan_repayment
+
+        WHERE schedule_id = #{scheduleId}
+
+
+    </select>
+
+
+</mapper>

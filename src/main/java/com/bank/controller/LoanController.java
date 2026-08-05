@@ -5,9 +5,14 @@ import com.bank.dto.request.UpdateLoanRequest;
 import com.bank.dto.request.CreateLoanRepaymentRequest;
 import com.bank.dto.response.LoanRepaymentResponse;
 import com.bank.dto.response.LoanResponse;
+import com.bank.entity.LoanRepayment;
+import com.bank.entity.LoanRepaymentSchedule;
 import com.bank.model.ApiResponse;
 import com.bank.security.Secured;
+import com.bank.service.LoanRepaymentHistoryService;
+import com.bank.service.LoanRepaymentScheduleService;
 import com.bank.service.LoanService;
+import com.bank.usecase.loan.ProcessOverdueLoanUseCase;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -25,6 +30,15 @@ public class LoanController {
 
     @Inject
     private LoanService loanService;
+
+    @Inject
+    private LoanRepaymentScheduleService scheduleService;
+
+    @Inject
+    private LoanRepaymentHistoryService repaymentHistoryService;
+
+    @Inject
+    private ProcessOverdueLoanUseCase processOverdueLoanUseCase;
 
     @POST
     public Response createLoan(
@@ -258,5 +272,82 @@ public class LoanController {
                         .build();
 
         return Response.ok(apiResponse).build();
+    }
+
+    @GET
+    @Path("/{loanId}/repayment-schedule")
+    public Response getRepaymentSchedule(
+            @PathParam("loanId") Long loanId) {
+
+
+        List<LoanRepaymentSchedule> schedules =
+                scheduleService.getByLoanId(
+                        loanId
+                );
+
+
+        ApiResponse<List<LoanRepaymentSchedule>> response =
+                ApiResponse.<List<LoanRepaymentSchedule>>builder()
+                        .success(true)
+                        .message(
+                                "Repayment schedule fetched successfully."
+                        )
+                        .code(Response.Status.OK.getStatusCode())
+                        .data(schedules)
+                        .build();
+
+
+        return Response.ok(response).build();
+    }
+
+    @GET
+    @Path("/{loanId}/repayments")
+    public Response getRepaymentHistory(
+            @PathParam("loanId") Long loanId) {
+
+
+        List<LoanRepayment> repayments =
+                repaymentHistoryService.getByLoanId(
+                        loanId
+                );
+
+
+        ApiResponse<List<LoanRepayment>> response =
+                ApiResponse.<List<LoanRepayment>>builder()
+                        .success(true)
+                        .message(
+                                "Repayment history fetched successfully."
+                        )
+                        .code(Response.Status.OK.getStatusCode())
+                        .data(repayments)
+                        .build();
+
+
+        return Response.ok(response).build();
+    }
+
+    @POST
+    @Path("/system/process-overdue")
+    public Response processOverdueLoans() {
+
+
+        int count =
+                processOverdueLoanUseCase.execute();
+
+
+        ApiResponse<Integer> response =
+                ApiResponse.<Integer>builder()
+                        .success(true)
+                        .message(
+                                "Overdue loan schedules processed successfully."
+                        )
+                        .code(
+                                Response.Status.OK.getStatusCode()
+                        )
+                        .data(count)
+                        .build();
+
+
+        return Response.ok(response).build();
     }
 }
