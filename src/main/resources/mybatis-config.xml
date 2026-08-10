@@ -59,6 +59,7 @@
         <mapper resource="mapper/AuthMapper.xml"/>
         <mapper resource="mapper/LoanRepaymentScheduleMapper.xml"/>
         <mapper resource="mapper/LoanRepaymentMapper.xml"/>
+        <mapper resource="mapper/LoanPenaltyMapper.xml"/>
     </mappers>
 
 </configuration>

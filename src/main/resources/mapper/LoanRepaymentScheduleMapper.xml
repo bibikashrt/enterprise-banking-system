@@ -148,6 +148,15 @@
 
     </select>
 
+    <select id="findById"
+            resultMap="loanRepaymentScheduleResultMap">
+
+        SELECT *
+        FROM loan_repayment_schedule
+        WHERE schedule_id = #{scheduleId}
+
+    </select>
+
 
 
 

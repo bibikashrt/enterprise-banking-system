@@ -85,6 +85,16 @@ public class LoanRepaymentScheduleDAOImpl
 
     }
 
+    @Override
+    public LoanRepaymentSchedule findById(
+            Long scheduleId) {
+
+
+        return mapper()
+                .findById(scheduleId);
+
+    }
+
 
 
     @Override

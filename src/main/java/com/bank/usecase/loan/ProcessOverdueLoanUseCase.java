@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 
@@ -23,13 +24,18 @@ public class ProcessOverdueLoanUseCase {
     @Inject
     private LoanRepaymentScheduleDAO scheduleDAO;
 
+    @Inject
+    private CalculatePenaltyUseCase calculatePenaltyUseCase;
+
 
     @Transactional(rollbackOn = Exception.class)
     public int execute() {
 
 
         LocalDate today =
-                LocalDate.now();
+                LocalDate.now(
+                        ZoneId.of("Asia/Kathmandu")
+                );
 
 
         log.info(
@@ -81,6 +87,10 @@ public class ProcessOverdueLoanUseCase {
                         schedule.getLoanId()
                 );
 
+                calculatePenaltyUseCase.execute(
+                        schedule
+                );
+
             } else {
 
                 log.warn(
@@ -90,11 +100,15 @@ public class ProcessOverdueLoanUseCase {
 
             }
 
+
+
         }
         log.info(
                 "Overdue processing completed. Total overdue schedules: {}",
                 overdueCount
         );
+
+
 
 
         return overdueCount;

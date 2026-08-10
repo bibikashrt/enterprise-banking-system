@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bank.mapper.LoanPenaltyMapper">
+
+
+    <resultMap id="loanPenaltyResultMap"
+               type="com.bank.entity.LoanPenalty">
+
+
+        <id property="penaltyId"
+            column="penalty_id"/>
+
+
+        <result property="loanId"
+                column="loan_id"/>
+
+
+        <result property="scheduleId"
+                column="schedule_id"/>
+
+
+        <result property="penaltyAmount"
+                column="penalty_amount"/>
+
+        <result property="penaltyType"
+                column="penalty_type"/>
+
+
+        <result property="overdueDays"
+                column="overdue_days"/>
+
+
+        <result property="penaltyRate"
+                column="penalty_rate"/>
+
+
+        <result property="calculatedDate"
+                column="calculated_date"/>
+
+
+        <result property="paid"
+                column="paid"/>
+
+
+        <result property="createdAt"
+                column="created_at"/>
+
+
+    </resultMap>
+
+
+
+    <!-- Insert penalty -->
+
+    <insert id="insert"
+            parameterType="com.bank.entity.LoanPenalty"
+            useGeneratedKeys="true"
+            keyProperty="penaltyId">
+
+
+        INSERT INTO loan_penalty
+        (
+        loan_id,
+        schedule_id,
+        penalty_amount,
+        overdue_days,
+        penalty_rate,
+        calculated_date,
+        paid
+        )
+
+        VALUES
+        (
+        #{loanId},
+        #{scheduleId},
+        #{penaltyAmount},
+        #{overdueDays},
+        #{penaltyRate},
+        #{calculatedDate},
+        #{paid}
+        )
+
+
+    </insert>
+
+
+
+    <!-- Find penalties by loan -->
+
+    <select id="findByLoanId"
+            resultMap="loanPenaltyResultMap">
+
+
+        SELECT *
+
+        FROM loan_penalty
+
+        WHERE loan_id = #{loanId}
+
+        ORDER BY created_at DESC
+
+
+    </select>
+
+
+
+    <!-- Find penalty by schedule -->
+
+    <select id="findByScheduleId"
+            resultMap="loanPenaltyResultMap">
+
+
+        SELECT *
+
+        FROM loan_penalty
+
+        WHERE schedule_id = #{scheduleId}
+
+        LIMIT 1
+
+
+    </select>
+
+    <update id="updatePaidStatus"
+            parameterType="com.bank.entity.LoanPenalty">
+
+
+        UPDATE loan_penalty
+
+        SET
+
+        paid = true,
+
+        updated_at = CURRENT_TIMESTAMP
+
+
+        WHERE penalty_id = #{penaltyId}
+
+
+    </update>
+
+
+</mapper>

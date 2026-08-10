@@ -26,6 +26,10 @@ public interface LoanRepaymentScheduleDAO {
             LocalDate date
     );
 
+    LoanRepaymentSchedule findById(
+            Long scheduleId
+    );
+
 
     int updateStatus(
             LoanRepaymentSchedule schedule

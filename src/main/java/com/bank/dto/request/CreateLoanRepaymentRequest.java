@@ -16,6 +16,9 @@ public class CreateLoanRepaymentRequest {
     @NotNull(message = "Loan ID is required.")
     private Long loanId;
 
+    @NotNull(message = "Schedule ID is required.")
+    private Long scheduleId;
+
     @NotNull(message = "Repayment amount is required.")
     @DecimalMin(value = "0.01",
             message = "Repayment amount must be greater than zero.")

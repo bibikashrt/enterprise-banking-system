@@ -27,6 +27,10 @@ public interface LoanRepaymentScheduleMapper {
             @Param("loanId") Long loanId
     );
 
+    LoanRepaymentSchedule findById(
+            @Param("scheduleId") Long scheduleId
+    );
+
 
     int updateStatus(
             LoanRepaymentSchedule schedule

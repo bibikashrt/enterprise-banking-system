@@ -46,6 +46,9 @@ public class RepayLoanUseCase {
     @Inject
     private LoanRepaymentDAO repaymentDAO;
 
+    @Inject
+    private LoanPenaltyDAO penaltyDAO;
+
 
 
     @Transactional(rollbackOn = Exception.class)
@@ -109,9 +112,10 @@ public class RepayLoanUseCase {
         }
 
         LoanRepaymentSchedule schedule =
-                scheduleDAO.findNextPendingSchedule(
-                        loan.getLoanId()
+                scheduleDAO.findById(
+                        request.getScheduleId()
                 );
+
 
 
         if(schedule == null){
@@ -121,27 +125,65 @@ public class RepayLoanUseCase {
             );
         }
 
+        if(schedule.getScheduleStatus()
+                == ScheduleStatus.PAID){
+
+            throw new InvalidOperationException(
+                    "Installment already paid."
+            );
+        }
+
+        LoanPenalty penalty =
+                penaltyDAO.findByScheduleId(
+                        schedule.getScheduleId()
+                );
+
+        log.info(
+                "Penalty fetched: {}",
+                penalty
+        );
+
+
+
+        BigDecimal penaltyAmount =
+                penalty != null
+                        ? penalty.getPenaltyAmount()
+                        : BigDecimal.ZERO;
+
+
+        BigDecimal totalPayableAmount =
+                schedule.getTotalAmount()
+                        .add(penaltyAmount);
+
+        log.info(
+                "Installment: {}, Penalty: {}, Total Payable: {}",
+                schedule.getTotalAmount(),
+                penaltyAmount,
+                totalPayableAmount
+        );
 
 
         BigDecimal repaymentAmount =
                 request.getAmount();
 
         if(repaymentAmount.compareTo(
-                schedule.getTotalAmount()) < 0){
+                totalPayableAmount) < 0){
 
             throw new InvalidOperationException(
-                    "Repayment amount is less than installment amount."
+                    "Repayment amount is less than total payable amount including penalty."
             );
         }
 
-        if (repaymentAmount.compareTo(
-                loan.getOutstandingBalance()) > 0) {
+        BigDecimal maximumPayable =
+                totalPayableAmount;
+
+
+        if (repaymentAmount.compareTo(maximumPayable) > 0) {
 
             throw new InvalidOperationException(
-                    "Repayment amount cannot be greater than outstanding balance."
+                    "Repayment amount cannot be greater than installment payable amount."
             );
         }
-
 
 
         if (account.getAvailableBalance()
@@ -243,6 +285,25 @@ public class RepayLoanUseCase {
             );
         }
 
+        if(penalty != null){
+
+            penalty.setPaid(true);
+
+            int updatedPenalty =
+                    penaltyDAO.updatePaidStatus(
+                            penalty
+                    );
+
+
+            if(updatedPenalty == 0){
+
+                throw new InvalidOperationException(
+                        "Penalty update failed."
+                );
+            }
+
+        }
+
 
 
 
@@ -297,7 +358,7 @@ public class RepayLoanUseCase {
                                 RepaymentStatus.PAID
                         )
                         .transactionReference(
-                                null
+                                transaction.getTransactionReference()
                         )
                         .build();
 
