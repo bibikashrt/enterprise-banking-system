@@ -47,4 +47,6 @@ public class LoanPenalty {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime updatedAt;
+
 }

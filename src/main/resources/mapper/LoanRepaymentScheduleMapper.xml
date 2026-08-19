@@ -40,6 +40,10 @@
                 column="total_amount"/>
 
 
+        <result property="paidAmount"
+                column="paid_amount"/>
+
+
         <result property="scheduleStatus"
                 column="schedule_status"/>
 

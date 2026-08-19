@@ -39,6 +39,9 @@ public class LoanRepaymentSchedule {
     private BigDecimal totalAmount;
 
 
+    private BigDecimal paidAmount;
+
+
     private ScheduleStatus scheduleStatus;
 
 
