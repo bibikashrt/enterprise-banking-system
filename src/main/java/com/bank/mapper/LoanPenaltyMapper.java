@@ -25,6 +25,10 @@ public interface LoanPenaltyMapper {
             @Param("scheduleId") Long scheduleId
     );
 
+    LoanPenalty findUnpaidByScheduleId(
+            @Param( "scheduleId")Long scheduleId
+    );
+
     int updatePaidStatus(
             LoanPenalty penalty
     );

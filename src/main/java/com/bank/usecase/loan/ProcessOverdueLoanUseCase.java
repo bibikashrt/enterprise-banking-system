@@ -60,47 +60,61 @@ public class ProcessOverdueLoanUseCase {
 
         int overdueCount = 0;
 
-
         for (LoanRepaymentSchedule schedule : overdueSchedules) {
 
 
-            schedule.setScheduleStatus(
-                    ScheduleStatus.OVERDUE
-            );
+            if (schedule.getScheduleStatus() != ScheduleStatus.OVERDUE) {
 
 
-            int updated =
-                    scheduleDAO.updateStatus(
+                schedule.setScheduleStatus(
+                        ScheduleStatus.OVERDUE
+                );
+
+
+                int updated =
+                        scheduleDAO.updateStatus(schedule);
+
+
+                if (updated > 0) {
+
+                    overdueCount++;
+
+                    log.info(
+                            "Repayment schedule marked overdue. Schedule ID: {}, Loan ID: {}",
+                            schedule.getScheduleId(),
+                            schedule.getLoanId()
+                    );
+
+
+                    calculatePenaltyUseCase.execute(
                             schedule
                     );
 
 
-            if (updated > 0) {
+                } else {
+
+                    log.warn(
+                            "Failed to update overdue schedule. Schedule ID: {}",
+                            schedule.getScheduleId()
+                    );
+
+                }
 
 
-                overdueCount++;
+            } else {
 
 
                 log.info(
-                        "Repayment schedule marked overdue. Schedule ID: {}, Loan ID: {}",
+                        "Already overdue schedule found. Schedule ID: {}, Loan ID: {}",
                         schedule.getScheduleId(),
                         schedule.getLoanId()
                 );
 
-                calculatePenaltyUseCase.execute(
-                        schedule
-                );
+                calculatePenaltyUseCase.execute(schedule);
 
-            } else {
-
-                log.warn(
-                        "Failed to update overdue schedule. Schedule ID: {}",
-                        schedule.getScheduleId()
-                );
+                overdueCount++;
 
             }
-
-
 
         }
         log.info(

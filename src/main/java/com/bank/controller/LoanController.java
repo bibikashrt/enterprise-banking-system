@@ -4,6 +4,7 @@ import com.bank.dto.request.CreateLoanRequest;
 import com.bank.dto.request.UpdateLoanRequest;
 import com.bank.dto.request.CreateLoanRepaymentRequest;
 import com.bank.dto.response.LoanRepaymentResponse;
+import com.bank.dto.response.LoanRepaymentScheduleResponse;
 import com.bank.dto.response.LoanResponse;
 import com.bank.entity.LoanRepayment;
 import com.bank.entity.LoanRepaymentSchedule;
@@ -280,14 +281,14 @@ public class LoanController {
             @PathParam("loanId") Long loanId) {
 
 
-        List<LoanRepaymentSchedule> schedules =
+        List<LoanRepaymentScheduleResponse> schedules =
                 scheduleService.getByLoanId(
                         loanId
                 );
 
 
-        ApiResponse<List<LoanRepaymentSchedule>> response =
-                ApiResponse.<List<LoanRepaymentSchedule>>builder()
+        ApiResponse<List<LoanRepaymentScheduleResponse>> response =
+                ApiResponse.<List<LoanRepaymentScheduleResponse>>builder()
                         .success(true)
                         .message(
                                 "Repayment schedule fetched successfully."

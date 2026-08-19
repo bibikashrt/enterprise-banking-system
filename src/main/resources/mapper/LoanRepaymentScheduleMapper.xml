@@ -136,15 +136,12 @@
     <select id="findOverdueSchedules"
             resultMap="loanRepaymentScheduleResultMap">
 
-
         SELECT *
-
         FROM loan_repayment_schedule
 
-        WHERE schedule_status = 'PENDING'
+        WHERE due_date &lt; #{date}
 
-        AND due_date &lt; #{date}
-
+        AND schedule_status != 'PAID'
 
     </select>
 

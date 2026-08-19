@@ -134,7 +134,7 @@ public class RepayLoanUseCase {
         }
 
         LoanPenalty penalty =
-                penaltyDAO.findByScheduleId(
+                penaltyDAO.findUnpaidByScheduleId(
                         schedule.getScheduleId()
                 );
 
@@ -242,6 +242,8 @@ public class RepayLoanUseCase {
                     "Repayment schedule update failed."
             );
         }
+
+
 
 
 

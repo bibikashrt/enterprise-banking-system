@@ -23,6 +23,10 @@ public interface LoanPenaltyDAO {
             Long scheduleId
     );
 
+    LoanPenalty findUnpaidByScheduleId(
+            Long scheduleId
+    );
+
     int updatePaidStatus(
             LoanPenalty penalty
     );

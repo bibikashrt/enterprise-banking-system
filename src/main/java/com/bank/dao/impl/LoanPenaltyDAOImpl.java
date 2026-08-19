@@ -76,6 +76,13 @@ public class LoanPenaltyDAOImpl
     }
 
     @Override
+    public LoanPenalty findUnpaidByScheduleId(
+            Long scheduleId){
+        return mapper()
+                .findUnpaidByScheduleId(scheduleId);
+    }
+
+    @Override
     public int updatePaidStatus(
             LoanPenalty penalty) {
 

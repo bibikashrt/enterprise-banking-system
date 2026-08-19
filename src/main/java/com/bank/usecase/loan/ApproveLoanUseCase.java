@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class ApproveLoanUseCase {
+public class   ApproveLoanUseCase {
 
 
     @Inject

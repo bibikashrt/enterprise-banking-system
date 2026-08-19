@@ -26,9 +26,9 @@ public class LoanOverdueScheduler {
      * Runs every day at midnight.
      */
     @Schedule(
-            hour = "0",
-            minute = "0",
-            second = "0",
+            hour = "*",
+            minute = "*",
+            second = "10",
             persistent = false
     )
     public void processOverdueLoans() {

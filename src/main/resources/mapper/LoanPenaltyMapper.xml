@@ -68,6 +68,7 @@
         loan_id,
         schedule_id,
         penalty_amount,
+        penalty_type,
         overdue_days,
         penalty_rate,
         calculated_date,
@@ -79,6 +80,7 @@
         #{loanId},
         #{scheduleId},
         #{penaltyAmount},
+        #{penaltyType},
         #{overdueDays},
         #{penaltyRate},
         #{calculatedDate},
@@ -126,6 +128,18 @@
 
     </select>
 
+    <select id="findUnpaidByScheduleId"
+            resultMap="loanPenaltyResultMap">
+
+        SELECT *
+        FROM loan_penalty
+
+        WHERE schedule_id = #{scheduleId}
+
+        AND paid = false
+
+    </select>
+
     <update id="updatePaidStatus"
             parameterType="com.bank.entity.LoanPenalty">
 
@@ -134,7 +148,7 @@
 
         SET
 
-        paid = true,
+        paid = #{paid},
 
         updated_at = CURRENT_TIMESTAMP
 

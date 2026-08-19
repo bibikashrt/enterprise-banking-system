@@ -80,7 +80,7 @@
         #{email},
         #{phoneNumber},
         #{passwordHash},
-        #{passwordHash},
+        #{passwordChanged},
         #{employeeRole},
         #{employeeStatus}
         )

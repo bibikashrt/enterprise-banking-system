@@ -24,6 +24,8 @@ import jakarta.transaction.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @ApplicationScoped
 public class CreateAccountUseCase {
@@ -64,6 +66,8 @@ public class CreateAccountUseCase {
                 .branchId(branch.getBranchId())
                 .accountType(request.getAccountType())
                 .currency(request.getCurrency())
+                .availableBalance(BigDecimal.ZERO)
+                .ledgerBalance(BigDecimal.ZERO)
                 .accountStatus(AccountStatus.ACTIVE)
                 .build();
 
